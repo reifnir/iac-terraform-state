@@ -14,7 +14,7 @@ checkov scan:
     name: bridgecrew/checkov:latest
     entrypoint: [""]
   script:
-    - checkov -d "${TERRAFORM_DIR}" --quiet -o junitxml > checkov-report.xml
+    - checkov -d "${TERRAFORM_DIR}" -o junitxml > checkov-report.xml
   artifacts:
     when: always
     reports:
