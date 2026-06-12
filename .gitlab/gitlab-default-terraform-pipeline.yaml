@@ -10,7 +10,9 @@ stages:
 
 checkov scan:
   stage: before deploy
-  image: bridgecrew/checkov:latest
+  image:
+    name: bridgecrew/checkov:latest
+    entrypoint: [""]
   script:
     - checkov -d "${TERRAFORM_DIR}" --quiet -o junitxml > checkov-report.xml
   artifacts:

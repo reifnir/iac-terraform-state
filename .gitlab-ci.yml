@@ -2,6 +2,9 @@ include:
   - local: .gitlab/gitlab-default-terraform-pipeline.yaml
 
 variables:
+  # Use the manually created creds until we can create and rotate them through automation (which we'll need to store in terraform state)
+  AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID_TEMP_ADMIN
+  AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY_TEMP_ADMIN
   TERRAFORM_DIR: ./terraform
   TF_HTTP_USERNAME: gitlab-ci-token
   TF_HTTP_PASSWORD: $CI_JOB_TOKEN
