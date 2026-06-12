@@ -1,5 +1,5 @@
-variable "region" {
-  description = "The AWS region to deploy resources in"
+variable "bucket_name" {
+  description = "Base name shared by both regional buckets"
   type        = string
   nullable    = false
 }
