@@ -34,8 +34,8 @@ resource "aws_sns_topic_policy" "bucket_notifications" {
 
 # ── Access-logging bucket ─────────────────────────────────────────────────────
 
-# checkov:skip=CKV_AWS_144: Access logs are intentionally region-local; replicating them cross-region provides no DR value.
 resource "aws_s3_bucket" "logs" {
+  # checkov:skip=CKV_AWS_144: Access logs are intentionally region-local; replicating them cross-region provides no DR value.
   bucket        = "${var.bucket_name}-access-logs"
   force_destroy = false
   tags          = var.tags
