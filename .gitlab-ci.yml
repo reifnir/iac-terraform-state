@@ -1,5 +1,7 @@
 include:
-  - local: .gitlab/gitlab-default-terraform-pipeline.yaml
+  - project: reifnir-public-projects/job-templates
+    ref: main
+    file: gitlab/default-terraform-pipeline.yaml
 
 variables:
   # Use the manually created creds until we can create and rotate them through automation (which we'll need to store in terraform state)
