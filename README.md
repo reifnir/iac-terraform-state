@@ -10,4 +10,3 @@ It also sets up a few Gitlab variables for other pipelines to consume for Terraf
 - `TERRAFORM_STATE_BUCKET_SECONDARY`: The S3 bucke name in the secondry region
 - `TERRAFORM_STATE_BUCKET_CURRENT`: Currently points to `$TERRAFORM_STATE_BUCKET_PRIMARY`
 - `TERRAFORM_REGION_CURRENT`: Currently points to our primary region
-
