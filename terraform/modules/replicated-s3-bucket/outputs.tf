@@ -8,6 +8,16 @@ output "kms_replica_key_arn" {
   value       = aws_kms_replica_key.s3.arn
 }
 
+output "primary_notifications_topic_arn" {
+  description = "ARN of the SNS topic receiving S3 event notifications in us-east-1"
+  value       = module.primary.notifications_topic_arn
+}
+
+output "secondary_notifications_topic_arn" {
+  description = "ARN of the SNS topic receiving S3 event notifications in us-west-2"
+  value       = module.secondary.notifications_topic_arn
+}
+
 output "primary_bucket_id" {
   description = "Name of the primary (us-east-1) S3 bucket"
   value       = module.primary.bucket_id

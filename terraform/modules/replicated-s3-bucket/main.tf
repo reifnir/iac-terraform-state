@@ -38,6 +38,15 @@ resource "aws_kms_key" "s3" {
         }
         Action   = ["kms:GenerateDataKey", "kms:Decrypt"]
         Resource = "*"
+      },
+      {
+        Sid    = "AllowSNSServiceUse"
+        Effect = "Allow"
+        Principal = {
+          Service = "sns.amazonaws.com"
+        }
+        Action   = ["kms:GenerateDataKey", "kms:Decrypt"]
+        Resource = "*"
       }
     ]
   })
