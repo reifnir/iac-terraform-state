@@ -1,7 +1,8 @@
 # By default, this pipeline will run all jobs except apply on merge requests.
 workflow:
-  - if: $CI_MERGE_REQUEST_ID
-  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 stages:
   - before deploy
