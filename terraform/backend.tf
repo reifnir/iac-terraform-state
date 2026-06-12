@@ -12,4 +12,8 @@ terraform {
     # - username as TF_HTTP_USERNAME
     # - password as TF_HTTP_PASSWORD
   }
+  required_providers {
+    aws    = { source = "hashicorp/aws" }
+    gitlab = { source = "gitlabhq/gitlab" }
+  }
 }
