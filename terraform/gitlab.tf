@@ -1,7 +1,3 @@
-provider "gitlab" {
-  # Token is read from the GITLAB_TOKEN environment variable.
-}
-
 locals {
   gitlab_group = "reifnir-public-projects"
 }

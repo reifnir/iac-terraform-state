@@ -21,5 +21,4 @@ module "state_bucket" {
   }
 
   bucket_name = local.bucket_name
-  tags        = var.tags
 }
