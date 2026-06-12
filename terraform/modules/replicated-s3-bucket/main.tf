@@ -83,7 +83,7 @@ module "primary" {
     aws = aws.primary
   }
 
-  bucket_name = var.bucket_name
+  bucket_name = "${var.bucket_name}-primary"
   kms_key_arn = aws_kms_key.s3.arn
   tags        = var.tags
 }
@@ -94,7 +94,7 @@ module "secondary" {
     aws = aws.secondary
   }
 
-  bucket_name = var.bucket_name
+  bucket_name = "${var.bucket_name}-secondary"
   kms_key_arn = aws_kms_replica_key.s3.arn
   tags        = var.tags
 }

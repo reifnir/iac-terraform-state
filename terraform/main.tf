@@ -9,7 +9,7 @@ locals {
     if account.id == data.aws_caller_identity.current.account_id
   ][0]
 
-  bucket_name = "${lower(local.account_name)}-terraform-state-primary"
+  bucket_name = "${lower(local.account_name)}-terraform-state"
 }
 
 module "state_bucket" {
