@@ -128,6 +128,7 @@ resource "aws_s3_bucket_policy" "logs" {
 
 # ── Main bucket ───────────────────────────────────────────────────────────────
 
+# checkov:skip=CKV_AWS_144: Replication is configured in the parent replicated-s3-bucket module; Checkov cannot trace it across module boundaries.
 resource "aws_s3_bucket" "this" {
   bucket        = var.bucket_name
   force_destroy = false
