@@ -5,7 +5,6 @@ data "aws_caller_identity" "current" {}
 resource "aws_sns_topic" "bucket_notifications" {
   name              = "${var.bucket_name}-s3-notifications"
   kms_master_key_id = var.kms_key_arn
-  tags              = var.tags
 }
 
 resource "aws_sns_topic_policy" "bucket_notifications" {
@@ -38,7 +37,6 @@ resource "aws_s3_bucket" "logs" {
   # checkov:skip=CKV_AWS_144: Access logs are intentionally region-local; replicating them cross-region provides no DR value.
   bucket        = "${var.bucket_name}-access-logs"
   force_destroy = false
-  tags          = var.tags
 }
 
 resource "aws_s3_bucket_versioning" "logs" {
@@ -132,7 +130,6 @@ resource "aws_s3_bucket" "this" {
   # checkov:skip=CKV_AWS_144: Replication is configured in the parent replicated-s3-bucket module; Checkov cannot trace it across module boundaries.
   bucket        = var.bucket_name
   force_destroy = false
-  tags          = var.tags
 }
 
 resource "aws_s3_bucket_versioning" "this" {

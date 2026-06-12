@@ -4,8 +4,8 @@ variable "region" {
   nullable    = false
 }
 
-variable "tags" {
-  description = "Tags to apply to all resources"
-  type        = map(string)
-  default     = {}
+variable "gitlab_token" {
+  description = "GitLab personal access token with api scope, used for Terraform state locking"
+  type        = string
+  nullable    = false
 }

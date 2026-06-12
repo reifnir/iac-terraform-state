@@ -50,8 +50,6 @@ resource "aws_kms_key" "s3" {
       }
     ]
   })
-
-  tags = var.tags
 }
 
 resource "aws_kms_alias" "s3_primary" {
@@ -65,8 +63,6 @@ resource "aws_kms_replica_key" "s3" {
   primary_key_arn         = aws_kms_key.s3.arn
   description             = "Replica of multi-region CMK for S3 bucket ${var.bucket_name}"
   deletion_window_in_days = 7
-
-  tags = var.tags
 }
 
 resource "aws_kms_alias" "s3_secondary" {
@@ -83,9 +79,8 @@ module "primary" {
     aws = aws.primary
   }
 
-  bucket_name = var.bucket_name
+  bucket_name = "${var.bucket_name}-primary"
   kms_key_arn = aws_kms_key.s3.arn
-  tags        = var.tags
 }
 
 module "secondary" {
@@ -94,9 +89,8 @@ module "secondary" {
     aws = aws.secondary
   }
 
-  bucket_name = var.bucket_name
+  bucket_name = "${var.bucket_name}-secondary"
   kms_key_arn = aws_kms_replica_key.s3.arn
-  tags        = var.tags
 }
 
 # ── IAM replication roles (IAM is global; created via aws.primary) ────────────
@@ -119,7 +113,6 @@ resource "aws_iam_role" "primary_to_secondary" {
   provider           = aws.primary
   name               = "${var.bucket_name}-repl-primary-to-secondary"
   assume_role_policy = local.replication_trust_policy
-  tags               = var.tags
 }
 
 resource "aws_iam_role_policy" "primary_to_secondary" {
@@ -171,7 +164,6 @@ resource "aws_iam_role" "secondary_to_primary" {
   provider           = aws.primary
   name               = "${var.bucket_name}-repl-secondary-to-primary"
   assume_role_policy = local.replication_trust_policy
-  tags               = var.tags
 }
 
 resource "aws_iam_role_policy" "secondary_to_primary" {
