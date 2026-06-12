@@ -30,12 +30,3 @@ provider "aws" {
     tags = local.default_tags
   }
 }
-
-provider "aws" {
-  alias  = "secondary"
-  region = "us-west-2"
-
-  default_tags {
-    tags = local.default_tags
-  }
-}
