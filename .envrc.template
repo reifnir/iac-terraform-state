@@ -1,0 +1,10 @@
+# Be sure to be connected to the right AWS account via SSO
+export SECRET_GITLAB_USERNAME=""
+export GITLAB_AUTOMATION_TOKEN=""
+
+export TF_HTTP_USERNAME="$SECRET_GITLAB_USERNAME"
+export TF_HTTP_PASSWORD="$GITLAB_AUTOMATION_TOKEN"
+export TF_VAR_region="us-east-1"
+
+# To run checkov locally, you can use the following command from the terraform directory:
+# docker run --rm -it -v "$(pwd):/src" -w /src  bridgecrew/checkov:latest -d .
