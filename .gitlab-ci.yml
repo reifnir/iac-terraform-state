@@ -1,6 +1,6 @@
 include:
-  - project: reifnir-public-projects/job-templates
-    ref: main
+  - project: reifnir-public-projects/iac/job-templates
+    ref: be-more-verbose-in-the-job
     file: gitlab/default-terraform-pipeline.yaml
 
 variables:
