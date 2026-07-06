@@ -1,7 +1,15 @@
-include:
-  - project: reifnir-public-projects/iac/job-templates
-    ref: main
-    file: gitlab/default-terraform-pipeline.yaml
+# We won't use the template over here since it's going to be a one-off http backend for this project (since we're bootstrapping the terraform state for the other projects).
+# No need to make the template more complex for everything else when we can just put a little specific TF here instead.
+
+# By default, this pipeline will run all jobs except apply on merge requests.
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+stages:
+  - before deploy
+  - deploy
 
 variables:
   # Use the manually created creds until we can create and rotate them through
@@ -13,3 +21,47 @@ variables:
   TF_HTTP_PASSWORD: $CI_JOB_TOKEN
   TF_VAR_gitlab_token: $GITLAB_AUTOMATION_TOKEN
   TF_VAR_region: us-east-1
+
+checkov scan:
+  stage: before deploy
+  image:
+    name: bridgecrew/checkov:latest
+    entrypoint: [""]
+  script:
+    - checkov
+      --directory "${TERRAFORM_DIR}"
+      --output cli
+      --output junitxml
+      --output-file-path console,checkov-report.xml
+  artifacts:
+    when: always
+    reports:
+      junit: checkov-report.xml
+
+plan:
+  resource_group: terraform
+  stage: before deploy
+  image:
+    name: hashicorp/terraform:latest
+    entrypoint: [""]
+  script:
+    - terraform -chdir="${TERRAFORM_DIR}" init
+    - terraform -chdir="${TERRAFORM_DIR}" plan -out=planfile
+  artifacts:
+    paths:
+      - $TERRAFORM_DIR/planfile
+
+apply:
+  resource_group: terraform
+  stage: deploy
+  image:
+    name: hashicorp/terraform:latest
+    entrypoint: [""]
+  script:
+    - terraform -chdir="${TERRAFORM_DIR}" init
+    - terraform -chdir="${TERRAFORM_DIR}" apply -auto-approve planfile
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: always
