@@ -29,9 +29,9 @@ resource "gitlab_group_variable" "terraform_state_bucket_current" {
   environment_scope = "*"
 }
 
-resource "gitlab_group_variable" "terraform_region_current" {
+resource "gitlab_group_variable" "terraform_state_region_current" {
   group             = local.gitlab_group
-  key               = "TERRAFORM_REGION_CURRENT"
+  key               = "TERRAFORM_STATE_REGION_CURRENT"
   value             = "us-east-1"
   masked            = false
   raw               = true
