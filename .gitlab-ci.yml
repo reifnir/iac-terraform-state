@@ -1,5 +1,5 @@
 include:
-  - project: reifnir-public-projects/job-templates
+  - project: reifnir-public-projects/iac/job-templates
     ref: main
     file: gitlab/default-terraform-pipeline.yaml
 
