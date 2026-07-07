@@ -236,6 +236,21 @@ resource "aws_s3_bucket_replication_configuration" "primary_to_secondary" {
       encryption_configuration {
         replica_kms_key_id = aws_kms_replica_key.s3.arn
       }
+
+      # We want the SLA for replication to be 15 minutes, so we enable Replication Time Control (RTC) and set the time to 15 minutes. This is a paid feature, but it ensures that replication occurs within the SLA.
+      replication_time {
+        status = "Enabled"
+        time {
+          minutes = 15
+        }
+      }
+
+      metrics {
+        status = "Enabled"
+        event_threshold {
+          minutes = 15
+        }
+      }
     }
   }
 }
@@ -262,6 +277,21 @@ resource "aws_s3_bucket_replication_configuration" "secondary_to_primary" {
 
       encryption_configuration {
         replica_kms_key_id = aws_kms_key.s3.arn
+      }
+
+      # We want the SLA for replication to be 15 minutes, so we enable Replication Time Control (RTC) and set the time to 15 minutes. This is a paid feature, but it ensures that replication occurs within the SLA.
+      replication_time {
+        status = "Enabled"
+        time {
+          minutes = 15
+        }
+      }
+
+      metrics {
+        status = "Enabled"
+        event_threshold {
+          minutes = 15
+        }
       }
     }
   }
