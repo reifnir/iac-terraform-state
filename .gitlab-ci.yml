@@ -12,10 +12,6 @@ stages:
   - deploy
 
 variables:
-  # Use the manually created creds until we can create and rotate them through
-  # automation (which we'll need to store in terraform state)
-  AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID_TEMP_ADMIN
-  AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY_TEMP_ADMIN
   TERRAFORM_DIR: ./terraform
   TF_HTTP_USERNAME: gitlab-ci-token
   TF_HTTP_PASSWORD: $CI_JOB_TOKEN
@@ -38,6 +34,16 @@ checkov scan:
     reports:
       junit: checkov-report.xml
 
+.before_terraform_action:
+  script:
+    - |
+      echo "Setting up AWS OIDC credentials for Terraform..."
+      echo "${GITLAB_OIDC_TOKEN}" > "${CI_BUILDS_DIR}/.oidc_token"
+      export AWS_WEB_IDENTITY_TOKEN_FILE="${CI_BUILDS_DIR}/.oidc_token"
+      export AWS_ROLE_ARN="${AUTOMATION_ROLE_ARN}"
+      export AWS_ROLE_SESSION_NAME="gitlab-${CI_PROJECT_ID}-${CI_PIPELINE_ID}"
+    - terraform -chdir="${TERRAFORM_DIR}" init
+
 plan:
   resource_group: terraform
   stage: before deploy
@@ -45,7 +51,7 @@ plan:
     name: hashicorp/terraform:latest
     entrypoint: [""]
   script:
-    - terraform -chdir="${TERRAFORM_DIR}" init
+    - !reference [.before_terraform_action, script]
     - terraform -chdir="${TERRAFORM_DIR}" plan -out=planfile
   artifacts:
     paths:
@@ -58,7 +64,7 @@ apply:
     name: hashicorp/terraform:latest
     entrypoint: [""]
   script:
-    - terraform -chdir="${TERRAFORM_DIR}" init
+    - !reference [.before_terraform_action, script]
     - terraform -chdir="${TERRAFORM_DIR}" apply -auto-approve planfile
   rules:
     - if: $CI_MERGE_REQUEST_ID
