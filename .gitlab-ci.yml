@@ -56,6 +56,9 @@ checkov scan:
 plan:
   resource_group: terraform
   stage: before deploy
+  id_tokens:
+    GITLAB_OIDC_TOKEN:
+      aud: https://gitlab.com
   image:
     name: hashicorp/terraform:latest
     entrypoint: [""]
@@ -72,6 +75,9 @@ plan:
 apply:
   resource_group: terraform
   stage: deploy
+  id_tokens:
+    GITLAB_OIDC_TOKEN:
+      aud: https://gitlab.com
   image:
     name: hashicorp/terraform:latest
     entrypoint: [""]
