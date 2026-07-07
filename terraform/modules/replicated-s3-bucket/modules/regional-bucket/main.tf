@@ -1,5 +1,19 @@
 data "aws_caller_identity" "current" {}
 
+data "aws_partition" "current" {}
+
+data "aws_organizations_organization" "current" {}
+
+locals {
+  # Matches the given roles in every account of the organization; combined with
+  # the aws:PrincipalOrgID condition wherever these are used, only org members
+  # can match.
+  plan_role_arn_patterns = [
+    for name in var.plan_role_names
+    : "arn:${data.aws_partition.current.partition}:iam::*:role/${name}"
+  ]
+}
+
 # ── SNS topic for bucket event notifications ──────────────────────────────────
 
 resource "aws_sns_topic" "bucket_notifications" {
@@ -186,28 +200,101 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
   }
 }
 
+# The org plan-role statements grant exactly what `terraform plan` against an
+# S3 backend with `use_lockfile = true` needs: list the bucket, read state
+# objects, and create/delete `<key>.tflock` lock files. Access is restricted
+# to the named roles in accounts belonging to this AWS organization; the
+# aws:PrincipalOrgID condition also keeps the wildcard-principal statements
+# from counting as public under the bucket's public access block.
+data "aws_iam_policy_document" "this" {
+  statement {
+    sid    = "DenyNonTLS"
+    effect = "Deny"
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    actions = ["s3:*"]
+    resources = [
+      aws_s3_bucket.this.arn,
+      "${aws_s3_bucket.this.arn}/*",
+    ]
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = ["false"]
+    }
+  }
+
+  statement {
+    sid    = "AllowOrgPlanRolesListBucket"
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    actions   = ["s3:ListBucket"]
+    resources = [aws_s3_bucket.this.arn]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:PrincipalOrgID"
+      values   = [data.aws_organizations_organization.current.id]
+    }
+    condition {
+      test     = "ArnLike"
+      variable = "aws:PrincipalArn"
+      values   = local.plan_role_arn_patterns
+    }
+  }
+
+  statement {
+    sid    = "AllowOrgPlanRolesReadState"
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.this.arn}/*"]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:PrincipalOrgID"
+      values   = [data.aws_organizations_organization.current.id]
+    }
+    condition {
+      test     = "ArnLike"
+      variable = "aws:PrincipalArn"
+      values   = local.plan_role_arn_patterns
+    }
+  }
+
+  statement {
+    sid    = "AllowOrgPlanRolesManageLockFiles"
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    actions   = ["s3:PutObject", "s3:DeleteObject"]
+    resources = ["${aws_s3_bucket.this.arn}/*.tflock"]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:PrincipalOrgID"
+      values   = [data.aws_organizations_organization.current.id]
+    }
+    condition {
+      test     = "ArnLike"
+      variable = "aws:PrincipalArn"
+      values   = local.plan_role_arn_patterns
+    }
+  }
+}
+
 resource "aws_s3_bucket_policy" "this" {
   bucket     = aws_s3_bucket.this.id
   depends_on = [aws_s3_bucket_public_access_block.this]
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid       = "DenyNonTLS"
-        Effect    = "Deny"
-        Principal = "*"
-        Action    = "s3:*"
-        Resource = [
-          aws_s3_bucket.this.arn,
-          "${aws_s3_bucket.this.arn}/*",
-        ]
-        Condition = {
-          Bool = { "aws:SecureTransport" = "false" }
-        }
-      }
-    ]
-  })
+  policy = data.aws_iam_policy_document.this.json
 }
 
 # ── Event notifications (CKV2_AWS_62) ────────────────────────────────────────
