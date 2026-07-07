@@ -220,8 +220,15 @@ resource "aws_s3_bucket_replication_configuration" "primary_to_secondary" {
   depends_on = [module.primary, module.secondary]
 
   rule {
-    id     = "replicate-all-to-secondary"
-    status = "Enabled"
+    id       = "replicate-all-to-secondary"
+    status   = "Enabled"
+    priority = 0
+
+    filter {}
+
+    delete_marker_replication {
+      status = "Enabled"
+    }
 
     source_selection_criteria {
       sse_kms_encrypted_objects {
@@ -262,8 +269,15 @@ resource "aws_s3_bucket_replication_configuration" "secondary_to_primary" {
   depends_on = [module.primary, module.secondary]
 
   rule {
-    id     = "replicate-all-to-primary"
-    status = "Enabled"
+    id       = "replicate-all-to-primary"
+    status   = "Enabled"
+    priority = 0
+
+    filter {}
+
+    delete_marker_replication {
+      status = "Enabled"
+    }
 
     source_selection_criteria {
       sse_kms_encrypted_objects {
