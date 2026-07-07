@@ -50,6 +50,9 @@ plan:
   image:
     name: hashicorp/terraform:latest
     entrypoint: [""]
+  variables:
+    # A specific account id param will be required once I setup more than one account in the org.
+    AUTOMATION_ROLE_ARN: arn:aws:iam::${AWS_ACCOUNT_ID_ROOT}:role/ReifnirAutomationReadOnly
   script:
     - !reference [.before_terraform_action, script]
     - terraform -chdir="${TERRAFORM_DIR}" plan -out=planfile
@@ -63,6 +66,8 @@ apply:
   image:
     name: hashicorp/terraform:latest
     entrypoint: [""]
+  variables:
+    AUTOMATION_ROLE_ARN: arn:aws:iam::${AWS_ACCOUNT_ID_ROOT}:role/ReifnirAutomationDeploy
   script:
     - !reference [.before_terraform_action, script]
     - terraform -chdir="${TERRAFORM_DIR}" apply -auto-approve planfile
