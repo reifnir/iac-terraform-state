@@ -42,6 +42,15 @@ checkov scan:
       export AWS_WEB_IDENTITY_TOKEN_FILE="${CI_BUILDS_DIR}/.oidc_token"
       export AWS_ROLE_ARN="${AUTOMATION_ROLE_ARN}"
       export AWS_ROLE_SESSION_NAME="gitlab-${CI_PROJECT_ID}-${CI_PIPELINE_ID}"
+    - |
+      echo "Terraform variables:"
+      echo "  AUTOMATION_ROLE_ARN:    '${AUTOMATION_ROLE_ARN}'"
+      echo "  AWS_ROLE_ARN:           '${AWS_ROLE_ARN}'"
+      echo "  AWS_ROLE_SESSION_NAME:  '${AWS_ROLE_SESSION_NAME}'"
+      echo "  TERRAFORM_DIR:          '${TERRAFORM_DIR}'"
+      echo "  TERRAFORM_STATE_REGION: '${TERRAFORM_STATE_REGION}'"
+      echo "  TERRAFORM_STATE_BUCKET: '${TERRAFORM_STATE_BUCKET}'"
+      echo "  TERRAFORM_STATE_KEY:    '${TERRAFORM_STATE_KEY}'"
     - terraform -chdir="${TERRAFORM_DIR}" init
 
 plan:
