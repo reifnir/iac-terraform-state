@@ -20,5 +20,6 @@ module "state_bucket" {
     aws.secondary = aws.secondary
   }
 
-  bucket_name = local.bucket_name
+  bucket_name     = local.bucket_name
+  plan_role_names = ["ReifnirAutomationReadOnly", "ReifnirAutomationDeploy"]
 }
